@@ -1,0 +1,36 @@
+Analiza sentymentu
+
+opis plików .ipynb
+
+1_web_scraping_1.ipynb - Kod ten wchodzi na podaną stronę, pobiera wyznaczone linki i przechodzi do kolejnej strony, z której także pobiera linki i tak dalej. Przejście do kolejnej strony jest tu utrudnione, ponieważ nie ma oznaczonego konkretnego adresu URL. Wynikmiem jest plik review_links_books.xlsx.
+
+2_web_scraping_2.ipynb - Kod ten tworzy całe linki, jeśli linki pobrane w poprzednim kroku są tylko fragmentem całego linku. Wynikiem jest plik review_links_books_1a.xlsx.
+
+3_web_scraping_3.ipynb - Kod ten otwiera wskazany plik .xlsx. (W tym przypadku review_links_books_1a.xlsx). Pobiera link z pierwszego wiersza, otwiera go, pobiera wskazane dane i zapisuje je do nowego pliku .csv. I przechodzi do kolejnego linku z pierwszego pliku .xlsx. Wynikiem jest plik reviews_all.csv.
+
+4_pre_processing.ipynb - Wstępne przetwarzanie danych - Tutaj usuwam duplikaty, porządkuję typy zmiennych, robię porządek z brakami danych, dodałam zmienną Rok_recenzji.
+Wynikiem jest plik reviews_eda1.csv.
+
+5_etykiety_huggingface.ipynb - W pierwszej kolejności sprawdzam język treści - służy do tego biblioteka langdetect, funkcja detect wykrywa język tekstu na podstawie zawartości tekstu.
+W związku z tym, że bede robić analizę sentymentu, a nie mam etykiet w swoim zbiorze, postanowiłam na szbko wykorzystać gotowe narzędzia do ich przypisania. Wykorzystałam model nie3e/sentiment-polish-gpt2-small. Podczas pracy wyrzucał błąd IndexError, wiec dodałam jeszcze obsługę tego błędu. Wartość etykiet to "NEUTRAL": 0, "NEGATIVE": 1, "POSITIVE": 2, "AMBIGUOUS": 3. Dodałam jeszcze -1 gdy był błąd.  Ja mam takie wyniki:  
+ 2    3779
+ 3    1101
+ 1     883
+ 0     183
+-1      16
+Ramkę danych zapisałam do pliku csv 'reviews_eda1a.csv'
+Przeanalizowałam treści opinii, dla których wartośc sentymentu wyniosła -1 i uzupełniłam je "ręcznie".
+sentyment
+2    3788
+3    1103
+1     884
+0     187
+Ramkę danych zapisałam do pliku csv 'reviews_eda1b.csv'
+
+6_modelowanie_etykiety_huggingface - Pierwszy model, który przetestuje to będzie RandomForestClassifier. W związku z tym, że mam wyraźny problem niezrównoważonych klas, będe musiała zastosować technike oversamplingu. Zastosuję SMOTE (Synthetic Minority Over-sampling Technique). Model XGBoost. LSTM.  Użyłam takich parametrów dla TfidfVectorizer(max_features=5000, ngram_range=(1,2))
+
+6a_modelowanie_etykiety_huggingface - Model BertForSequenceClassification;
+
+7_etykiety_3_labels_modelowanie - normalizacja tekstu, dodanie etykiet - TextBlob i NLTK. Ostatecznie skorzystałam z tych dodanych przez NLTK (3 etykiety). Użyłam takich parametrów dla TfidfVectorizer(max_features=5000, ngram_range=(1,2)). Modele RandomForestClassifier i XGBoost. Gdyu kombinowałam z dostrojeniem modeli, to wyniki były gorsze od tych na domyślnych parametrach.
+
+8_etykiety_3_labels_modelowanie_ver2 - Tu użyłam takich parametrów dla TfidfVectorizer(TfidfVectorizer(ngram_range=(1,3))). Modele RandomForestClassifier i XGBoost. Gdyu kombinowałam z dostrojeniem modelu RandomForestClassifier, to wyniki były gorsze od tych na domyślnych parametrach; a przy XGBoost minimalnie lepsze.
